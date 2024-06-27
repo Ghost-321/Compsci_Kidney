@@ -7,9 +7,11 @@ We have successfully annotated the vascular structure within the kidneys based o
 Our 2D rendering with color enhancement for visibility:
 
 Rendering 1
+
 ![image](https://github.com/Ghost-321/Compsci_Kidney/assets/133848705/39eedf12-958e-42eb-af4d-8f5821341dc6)
 
 Render 2
+
 ![image](https://github.com/Ghost-321/Compsci_Kidney/assets/133848705/9e3e9972-6292-4377-9d4e-157764c4d4e1)
 
 Our Models 3D Generation on Low Quality (Quickly Generated + Low Storage Requirement):
