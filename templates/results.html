@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Results</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <div class="navbar">
+        <a href="/">Home</a>
+        <a href="/about">About</a>
+        <a href="/contact">Contact</a>
+        <a href="/project">Project</a>
+        <a href="/results">Results</a>
+        <a href="/upload">Upload</a>
+    </div>
+    <div class="container">
+        <h1>Results Page</h1>
+        <p>This page displays the results of our segmentation model.</p>
+        <h2>Results Overview</h2>
+        <button id="selectAllBtn">Select All</button>
+        <button id="scanImagesBtn">Scan Selected Images</button>
+        <div id="imageList"></div>
+        <div id="resultImages"></div>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            await fetchResultsImages();
+
+            document.getElementById('selectAllBtn').addEventListener('click', () => {
+                document.querySelectorAll('.imageCheckbox').forEach(checkbox => {
+                    checkbox.checked = true;
+                });
+            });
+
+            document.getElementById('scanImagesBtn').addEventListener('click', async () => {
+                const selectedFiles = Array.from(document.querySelectorAll('.imageCheckbox:checked'))
+                    .map(checkbox => checkbox.value);
+                if (selectedFiles.length === 0) {
+                    alert('Please select images to scan');
+                    return;
+                }
+                const response = await fetch('/scan_images/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ files: selectedFiles })
+                });
+                const result = await response.json();
+                alert(result.message);
+                await fetchScannedImages();
+            });
+        });
+
+        async function fetchResultsImages() {
+            const response = await fetch('/results_images/');
+            const data = await response.json();
+            const imageList = document.getElementById('imageList');
+            imageList.innerHTML = '';
+            data.filenames.forEach(filename => {
+                const div = document.createElement('div');
+                div.innerHTML = `<input type="checkbox" class="imageCheckbox" value="${filename}"> ${filename}`;
+                imageList.appendChild(div);
+            });
+        }
+
+        async function fetchScannedImages() {
+            const response = await fetch('/scanned_images/');
+            const data = await response.json();
+            const resultImages = document.getElementById('resultImages');
+            resultImages.innerHTML = '';
+            data.filenames.forEach(filename => {
+                const img = document.createElement('img');
+                img.src = `/static/scanned_images/${filename}`;
+                img.alt = filename;
+                img.style.width = '200px'; // Adjust the image display size if needed
+                img.addEventListener('click', () => {
+                    window.open(`/static/scanned_images/${filename}`, '_blank');
+                });
+                resultImages.appendChild(img);
+            });
+        }
+    </script>
+</body>
+</html>

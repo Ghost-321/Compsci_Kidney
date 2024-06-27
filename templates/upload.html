@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Files</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <div class="navbar">
+        <a href="/">Home</a>
+        <a href="/about">About</a>
+        <a href="/contact">Contact</a>
+        <a href="/project">Project</a>
+        <a href="/results">Results</a>
+        <a href="/upload">Upload</a>
+    </div>
+    <div class="container">
+        <h1>Upload Section</h1>
+        <p>You upload your images for testing here. This is organised this way for simplicity purposes and reduce the chances of human error as this is designed to handle hundreds of images</p>
+        <form id="uploadForm">
+            <input type="file" name="files" multiple>
+            <input type="submit" value="Upload">
+        </form>
+        <div id="uploadMessage"></div>
+        <div class="uploaded-images">
+            <h3>Previously Uploaded Images</h3>
+            <div id="imagesContainer" class="images-container">
+                <!-- Images will be loaded here -->
+            </div>
+        </div>
+    </div>
+    <script>
+        document.getElementById('uploadForm').addEventListener('submit', async function(event) {
+            event.preventDefault();
+            const formData = new FormData(this);
+            const response = await fetch('/uploadfile/', {
+                method: 'POST',
+                body: formData
+            });
+            const result = await response.json();
+            const messageDiv = document.getElementById('uploadMessage');
+            if (response.ok) {
+                messageDiv.innerHTML = `<p>Files uploaded successfully: ${result.filenames.join(', ')}</p>`;
+                loadUploadedImages(); // Reload the uploaded images
+            } else {
+                messageDiv.innerHTML = `<p>Error: ${result.detail}</p>`;
+            }
+        });
+
+        async function loadUploadedImages() {
+            const response = await fetch('/uploaded_images/');
+            const result = await response.json();
+            const imagesContainer = document.getElementById('imagesContainer');
+            imagesContainer.innerHTML = '';
+            result.filenames.forEach(filename => {
+                const img = document.createElement('img');
+                img.src = `/static/uploads_display/${filename}`;
+                img.alt = filename;
+                img.classList.add('uploaded-image');
+                imagesContainer.appendChild(img);
+            });
+        }
+
+        // Load the images initially
+        loadUploadedImages();
+    </script>
+</body>
+</html>
